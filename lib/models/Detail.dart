@@ -14,7 +14,7 @@ class Detail {
   final bool adult;
   final bool video;
   final String overview;
-  final String posterPath;
+   String? posterPath;
   String? backdropPath;
   final double popularity;
   String? releaseDate;
@@ -47,7 +47,6 @@ class Detail {
       required this.voteCount});
 
   factory Detail.fromJson(Map<String, dynamic> json) {
-    print(json);
     var results = json["genres"];
     final parsed = results.cast<Map<String, dynamic>>();
     return Detail(

@@ -10,7 +10,7 @@ class Movie {
   final bool adult;
   final bool? video;
   final String overview;
-  final String posterPath;
+  String? posterPath;
   String? backdropPath;
   final double popularity;
   String? releaseDate;
@@ -73,5 +73,9 @@ class Movie {
         .parse(releaseDate ?? firstAirDate ?? DateTime.now().toString());
 
     return dateTime;
+  }
+
+  String getName(){
+    return title??name??'';
   }
 }

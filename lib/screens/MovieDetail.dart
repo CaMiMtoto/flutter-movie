@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_movie/globals.dart';
 import 'package:flutter_movie/models/Movie.dart';
 import 'package:flutter_movie/screens/Home.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/Cast.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/Detail.dart';
 import 'Discover.dart';
+import 'Search.dart';
 
 List<Cast> parseCasts(String responseBody) {
   var results = jsonDecode(responseBody)["cast"];
@@ -98,77 +100,99 @@ class _MovieDetailState extends State<MovieDetail>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: movie == null
-          ? const Center(child: CircularProgressIndicator())
-          : CustomScrollView(
-              slivers: [
-                SliverAppBar(
-                  floating: true,
-                  pinned: false,
-                  expandedHeight: 200,
-                  flexibleSpace: FlexibleSpaceBar(
-                    // title: const Text("Movie Detail"),
-                    background: Image.network(
-                      "$imageOriginalUrl${movie?.backdropPath ?? movie?.posterPath}",
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  actions: const [
-                    Icon(Icons.favorite_border),
+        backgroundColor: Colors.black,
+        body: movie == null
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     SizedBox(
-                      width: 16,
+                      height: 250,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        clipBehavior: Clip.none,
+                        children: [
+                          ShaderMask(
+                            shaderCallback: (rect) {
+                              return const LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [Colors.black, Colors.transparent],
+                              ).createShader(
+                                Rect.fromLTRB(0, 0, rect.width, rect.height),
+                              );
+                            },
+                            blendMode: BlendMode.dstIn,
+                            child: Image.network(
+                              "$imageOriginalUrl${movie?.backdropPath ?? movie?.posterPath}",
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          Positioned(
+                            top: 0,
+                            width: MediaQuery.of(context).size.width,
+                            child: SafeArea(
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  IconButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      icon: const Icon(
+                                        Icons.arrow_back,
+                                        color: Colors.white,
+                                      )),
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        color: Colors.white,
+                                        icon: const Icon(Icons.search),
+                                        onPressed: () {
+                                          Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                  builder: (context) {
+                                            return const Search();
+                                          }));
+                                        },
+                                      ),
+                                      const SizedBox(
+                                        width: 16,
+                                      ),
+                                      const Icon(
+                                        Icons.favorite_border,
+                                        color: Colors.white,
+                                      ),
+                                      const SizedBox(
+                                        width: 16,
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    Icon(Icons.more_vert),
-                  ],
-                ),
-                SliverFillRemaining(
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                children: [
-                                  Text("MOVIES",
-                                      style: TextStyle(
-                                        color: Theme.of(context).primaryColor,
-                                        fontWeight: FontWeight.bold,
-                                      )),
-                                  const SizedBox(
-                                    width: 8,
-                                  ),
-                                  const Text(
-                                    '.',
-                                  ),
-                                  const SizedBox(
-                                    width: 8,
-                                  ),
-                                  Text("ACTION",
-                                      style: TextStyle(
-                                        color: Theme.of(context).primaryColor,
-                                        fontWeight: FontWeight.bold,
-                                      )),
-                                ],
+                              const Icon(
+                                Icons.star,
+                                color: Colors.yellow,
                               ),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.star,
-                                    color: Colors.yellow,
-                                  ),
-                                  const SizedBox(width: 8.0),
-                                  Text(
-                                    "${movie?.voteAverage.toStringAsFixed(1)}/10",
-                                    style:
-                                        TextStyle(color: Colors.grey.shade500),
-                                  ),
-                                ],
-                              )
+                              const SizedBox(width: 8.0),
+                              Text(
+                                "${movie?.voteAverage.toStringAsFixed(1)}/10",
+                                style: TextStyle(color: Colors.grey.shade500),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 8.0),
@@ -227,38 +251,42 @@ class _MovieDetailState extends State<MovieDetail>
                                   : const SizedBox.shrink(),
                             ],
                           ),
-                          const SizedBox(
-                            height: 16,
-                          ),
-                          SizedBox(
-                            height: 32,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: movie?.genres.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                var genres = movie?.genres;
-                                return GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(context).push(
-                                        MaterialPageRoute(builder: (context) {
-                                      return Discover(
-                                        genreId: genres![index].id,
+                          movie!.genres.isEmpty
+                              ? const SizedBox.shrink()
+                              : Container(
+                                  margin: const EdgeInsets.only(top: 16),
+                                  height: 32,
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: movie?.genres.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      var genres = movie?.genres;
+                                      return GestureDetector(
+                                        onTap: () {
+                                          Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                  builder: (context) {
+                                            return Discover(
+                                              genreId: genres![index].id,
+                                            );
+                                          }));
+                                        },
+                                        child: Container(
+                                          margin:
+                                              const EdgeInsets.only(right: 16),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16, vertical: 8),
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
+                                              color: Colors.grey.shade800),
+                                          child: Text(genres![index].name),
+                                        ),
                                       );
-                                    }));
-                                  },
-                                  child: Container(
-                                    margin: const EdgeInsets.only(right: 16),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 8),
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(30),
-                                        color: Colors.grey.shade800),
-                                    child: Text(genres![index].name),
+                                    },
                                   ),
-                                );
-                              },
-                            ),
-                          ),
+                                ),
                           const SizedBox(
                             height: 16,
                           ),
@@ -267,34 +295,58 @@ class _MovieDetailState extends State<MovieDetail>
                           const SizedBox(
                             height: 16,
                           ),
-                          Container(
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 4),
-                            child: MaterialButton(
-                              onPressed: () {},
-                              color: Theme.of(context).primaryColor,
-                              textColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Icon(
-                                    Icons.play_arrow,
-                                    size: 32,
+                          movie?.homepage == null
+                              ? const SizedBox.shrink()
+                              : Container(
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 4),
+                                  child: MaterialButton(
+                                    onPressed: () async {
+                                      try {
+                                        String url = Uri.encodeFull(
+                                            movie!.homepage.toString());
+                                        if (!await launchUrl(Uri.parse(url))) {
+                                          var snackBar = SnackBar(
+                                            content:
+                                                Text('Could not launch $url'),
+                                          );
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(snackBar);
+                                        }
+                                      } catch (e) {
+                                        var snackBar = const SnackBar(
+                                          content: Text(
+                                              'Unable to play this movie.'),
+                                        );
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(snackBar);
+                                      }
+                                    },
+                                    color: Theme.of(context).primaryColor,
+                                    textColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: const [
+                                        Icon(
+                                          Icons.play_arrow,
+                                          size: 32,
+                                        ),
+                                        Text(
+                                          "Play",
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  Text(
-                                    "Play",
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                                ),
                           Container(
                             margin: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 4),
@@ -326,41 +378,44 @@ class _MovieDetailState extends State<MovieDetail>
                           const SizedBox(
                             height: 32,
                           ),
+                          casts.isEmpty
+                              ? const SizedBox.shrink()
+                              : const Text(
+                                  "Cast and Crew",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 18),
+                                ),
+                          casts.isEmpty
+                              ? const SizedBox.shrink()
+                              : Container(
+                                  margin: const EdgeInsets.only(top: 16),
+                                  height: 150,
+                                  child: castLoading
+                                      ? const Center(
+                                          child: CircularProgressIndicator())
+                                      : ListView.builder(
+                                          itemCount: casts.length,
+                                          scrollDirection: Axis.horizontal,
+                                          itemBuilder: (BuildContext context,
+                                              int index) {
+                                            return buildCastWidget(index);
+                                          },
+                                        ),
+                                ),
                           const Text(
-                            "Cast and Crew",
-                            style: TextStyle(
-                                fontWeight: FontWeight.normal, fontSize: 18),
-                          ),
-                          const SizedBox(
-                            height: 16,
-                          ),
-                          SizedBox(
-                            height: 150,
-                            child: castLoading
-                                ? const Center(
-                                    child: CircularProgressIndicator())
-                                : ListView.builder(
-                                    itemCount: casts.length,
-                                    scrollDirection: Axis.horizontal,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      return buildCastWidget(index);
-                                    },
-                                  ),
-                          ),
-                          const Text(
-                            "MORE LIKE THIS",
+                            "More Like This",
                             style: TextStyle(
                                 fontWeight: FontWeight.normal, fontSize: 18),
                           ),
                           GridView.builder(
                             shrinkWrap: true,
                             gridDelegate:
-                                const SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 160,
-                              childAspectRatio: 0.6,
-                              crossAxisSpacing: 20,
-                              mainAxisSpacing: 20,
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              childAspectRatio: 2 / 3,
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                              crossAxisCount: 3,
                             ),
                             itemCount: recommended.length,
                             physics: const ScrollPhysics(),
@@ -378,12 +433,10 @@ class _MovieDetailState extends State<MovieDetail>
                           )
                         ],
                       ),
-                    ),
-                  ),
-                )
-              ],
-            ),
-    );
+                    )
+                  ],
+                ),
+              ));
   }
 
   SizedBox buildCastWidget(int index) {
@@ -398,7 +451,8 @@ class _MovieDetailState extends State<MovieDetail>
               borderRadius: BorderRadius.circular(50),
               child: Image.network(
                 "$imageW500Url${casts[index].profilePath}",
-                fit: BoxFit.cover,
+                fit: BoxFit.fitHeight,
+                alignment: Alignment.center,
               ),
             ),
           ),

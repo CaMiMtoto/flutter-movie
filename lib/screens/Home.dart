@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_movie/globals.dart';
 import 'package:flutter_movie/models/Movie.dart';
 import 'package:flutter_movie/screens/MovieDetail.dart';
+import 'package:flutter_movie/screens/Search.dart';
 import 'package:http/http.dart' as http;
 
 class Home extends StatefulWidget {
@@ -37,9 +40,17 @@ Future<List<Movie>> fetchPopularMovies() async {
   return compute(parseMovies, response.body);
 }
 
+Future<List<Movie>> fetchUpcomingMovies() async {
+  final response =
+      await http.get(Uri.parse('${baseUrl}movie/upcoming?api_key=$apiKey'));
+  // Use the compute function to run parsePhotos in a separate isolate.
+  return compute(parseMovies, response.body);
+}
+
 class _HomeState extends State<Home> {
   List<Movie> trendingMovies = [];
   List<Movie> popularMovies = [];
+  List<Movie> upcomingMovies = [];
 
   @override
   void initState() {
@@ -50,7 +61,14 @@ class _HomeState extends State<Home> {
     fetchPopularMovies().then((value) => {
           setState(() => {popularMovies = value})
         });
+    fetchUpcomingMovies().then((value) {
+      setState(() {
+        upcomingMovies = value;
+      });
+    });
   }
+
+  int _current = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -60,104 +78,105 @@ class _HomeState extends State<Home> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
-                        "Hi CaMi !",
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.w700),
-                      ),
-                      Text(
-                        "See What's next",
-                        style: TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.normal),
-                      ),
-                    ],
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (builder) {
+                    return const Search();
+                  }));
+                },
+                child: Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade800,
+                    borderRadius: BorderRadius.circular(30),
                   ),
-                  CircleAvatar(
-                    backgroundImage: const NetworkImage(
-                        "https://cdn.dribbble.com/users/1040983/screenshots/5630845/media/e95768b82810699dfd54512ff570954a.png?compress=1&resize=400x300&vertical=top"),
-                    backgroundColor: localTheme.backgroundColor,
-                  )
-                ],
-              ),
-              Container(
-                margin: const EdgeInsets.only(top: 32, bottom: 32),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade800,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: IntrinsicHeight(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.search,
-                        color: Colors.grey.shade600,
-                        size: 32,
-                      ),
-                      const SizedBox(
-                        width: 8,
-                      ),
-                      Expanded(
-                          child: Text(
-                        "Search Movies",
-                        style: TextStyle(
-                            color: Colors.grey.shade600, fontSize: 16),
-                      )),
-                      VerticalDivider(
-                        color: Colors.grey.shade700,
-                        thickness: 2,
-                      ),
-                      Container(
-                        margin: const EdgeInsets.only(left: 8),
-                        child: Icon(
-                          Icons.mic,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: IntrinsicHeight(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.search,
                           color: Colors.grey.shade600,
                           size: 32,
                         ),
-                      ),
-                    ],
+                        const SizedBox(
+                          width: 8,
+                        ),
+                        Expanded(
+                            child: Text(
+                          "Search Movies",
+                          style: TextStyle(
+                              color: Colors.grey.shade600, fontSize: 16),
+                        )),
+                        VerticalDivider(
+                          color: Colors.grey.shade700,
+                          thickness: 2,
+                        ),
+                        Container(
+                          margin: const EdgeInsets.only(left: 8),
+                          child: Icon(
+                            Icons.mic,
+                            color: Colors.grey.shade600,
+                            size: 32,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
               trendingMovies.isEmpty
+                  ? const SizedBox.shrink()
+                  : Container(
+                      margin: const EdgeInsets.only(top: 8, bottom: 16),
+                      child: const Text(
+                        "Trending Now",
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+              trendingMovies.isEmpty
                   ? const SizedBox(
                       height: 200,
                       child: Center(child: CircularProgressIndicator()))
-                  : CarouselSlider(
+                  : CarouselSlider.builder(
+                      itemCount: trendingMovies.length,
                       options: CarouselOptions(
-                        autoPlay: true,
-                        autoPlayInterval: const Duration(seconds: 10),
-                      ),
-                      items: trendingMovies
-                          .map(
-                            (item) => buildCarouselCard(context, item),
-                          )
-                          .toList(),
+                          autoPlay: true,
+                          autoPlayInterval: const Duration(seconds: 3),
+                          viewportFraction: 0.5,
+                          enlargeCenterPage: true,
+                          padEnds: true,
+                          disableCenter: false,
+                          onPageChanged: (index, reason) {
+                            setState(() {
+                              _current = index;
+                            });
+                          }),
+                      itemBuilder:
+                          (BuildContext context, int index, int realIndex) {
+                        var item = trendingMovies[index];
+                        return buildCarouselCard(context, item);
+                      },
                     ),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 32),
-                child: Row(
-                  children: [
-                    Text(
-                      "Popular".toUpperCase(),
-                      style: const TextStyle(
-                        fontSize: 16,
+              popularMovies.isEmpty
+                  ? const SizedBox.shrink()
+                  : Container(
+                      margin: const EdgeInsets.symmetric(vertical: 16),
+                      child: const Text(
+                        "Popular",
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
                       ),
                     ),
-                  ],
-                ),
-              ),
               SizedBox(
                 height: 250,
                 child: ListView(
@@ -169,28 +188,22 @@ class _HomeState extends State<Home> {
                       .toList(),
                 ),
               ),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 32),
-                child: Row(
-                  children: const [
-                    Text(
-                      "MY LIST",
-                      style: TextStyle(
-                        fontSize: 16,
+              upcomingMovies.isEmpty
+                  ? const SizedBox.shrink()
+                  : Container(
+                      margin: const EdgeInsets.symmetric(vertical: 16),
+                      child: const Text(
+                        "Upcoming",
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
                       ),
                     ),
-                    Icon(
-                      Icons.keyboard_arrow_right,
-                      color: Colors.white,
-                    ),
-                  ],
-                ),
-              ),
               SizedBox(
                 height: 200,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
-                  children: trendingMovies
+                  children: upcomingMovies
                       .map(
                         (item) => GestureDetector(
                           onTap: () {
@@ -198,18 +211,7 @@ class _HomeState extends State<Home> {
                                 builder: (context) =>
                                     MovieDetail(movieId: item.id)));
                           },
-                          child: Container(
-                            margin: const EdgeInsets.only(right: 16),
-                            width: MediaQuery.of(context).size.width / 3,
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: NetworkImage(
-                                    "$imageW500Url${item.posterPath}"),
-                                fit: BoxFit.cover,
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
+                          child: buildUpcomingCard(context, item),
                         ),
                       )
                       .toList(),
@@ -222,6 +224,20 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Container buildUpcomingCard(BuildContext context, Movie item) {
+    return Container(
+      margin: const EdgeInsets.only(right: 16),
+      width: MediaQuery.of(context).size.width / 3,
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: NetworkImage("$imageW500Url${item.posterPath}"),
+          fit: BoxFit.cover,
+        ),
+        borderRadius: BorderRadius.circular(10),
+      ),
+    );
+  }
+
   GestureDetector buildCarouselCard(BuildContext context, Movie item) {
     return GestureDetector(
       onTap: () {
@@ -229,14 +245,19 @@ class _HomeState extends State<Home> {
             builder: (context) => MovieDetail(movieId: item.id)));
       },
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16),
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        width: MediaQuery.of(context).size.width,
         child: Center(
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Image.network(
-              "$imageW500Url${item.posterPath}",
+            borderRadius: BorderRadius.circular(4),
+            child: CachedNetworkImage(
+              imageUrl: "$imageOriginalUrl${item.posterPath}",
               fit: BoxFit.cover,
-              width: MediaQuery.of(context).size.width,
+              progressIndicatorBuilder: (context, url, downloadProgress) =>
+                  const Center(
+                child: CupertinoActivityIndicator(),
+              ),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
             ),
           ),
         ),

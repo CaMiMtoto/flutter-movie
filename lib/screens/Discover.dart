@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_movie/models/Movie.dart';
@@ -31,9 +32,9 @@ Future<List<Movie>> fetchMovies({int? genreId, int page = 1}) async {
 }
 
 class Discover extends StatefulWidget {
-  int? genreId;
+   int? genreId;
 
-  Discover({Key? key, this.genreId}) : super(key: key);
+   Discover({Key? key, this.genreId}) : super(key: key);
 
   @override
   State<Discover> createState() => _DiscoverState(genreId);
@@ -103,91 +104,67 @@ class _DiscoverState extends State<Discover>
               children: [
                 SizedBox(
                   height: 30,
-                  child: genres.isEmpty
-                      ? const Center(
-                          child: SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(),
-                          ),
-                        )
-                      : ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: genres.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return GestureDetector(
-                              onTap: () {
-                                var newId = genres[index].id;
-                                setState(() {
-                                  activeCategory = newId;
-                                  movieLoading = true;
-                                });
-                                fetchMovies(genreId: newId == 0 ? null : newId)
-                                    .then((value) {
-                                  setState(() {
-                                    movies = value;
-                                    movieLoading = false;
-                                  });
-                                });
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(right: 16),
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      genres[index].name,
-                                      style: activeCategory == genres[index].id
-                                          ? TextStyle(
-                                              color: localTheme.primaryColor,
-                                              fontWeight: FontWeight.bold)
-                                          : TextStyle(
-                                              color: Colors.grey.shade500),
-                                    ),
-                                    genres[index].id == activeCategory
-                                        ? buildHorizontalBar(localTheme)
-                                        : const SizedBox.shrink()
-                                  ],
-                                ),
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: genres.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return GestureDetector(
+                        onTap: () {
+                          var newId = genres[index].id;
+                          setState(() {
+                            activeCategory = newId;
+                            movieLoading = true;
+                          });
+                          fetchMovies(genreId: newId == 0 ? null : newId)
+                              .then((value) {
+                            setState(() {
+                              movies = value;
+                              movieLoading = false;
+                            });
+                          });
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 16),
+                          child: Column(
+                            children: [
+                              Text(
+                                genres[index].name,
+                                style: activeCategory == genres[index].id
+                                    ? TextStyle(
+                                        color: localTheme.primaryColor,
+                                        fontWeight: FontWeight.bold)
+                                    : TextStyle(color: Colors.grey.shade500),
                               ),
-                            );
-                          },
+                              genres[index].id == activeCategory
+                                  ? buildHorizontalBar(localTheme)
+                                  : const SizedBox.shrink()
+                            ],
+                          ),
                         ),
-                ),
-                const SizedBox(
-                  height: 16,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: const [
-                    Text("Sort by genres"),
-                    SizedBox(
-                      width: 8,
-                    ),
-                    Icon(
-                      Icons.sort,
-                      color: Colors.white,
-                    )
-                  ],
+                      );
+                    },
+                  ),
                 ),
                 const SizedBox(
                   height: 32,
                 ),
                 movieLoading
-                    ? const Center(
-                        child: SizedBox(
-                          height: 30,
-                          width: 30,
-                          child: CircularProgressIndicator(),
+                    ? const SizedBox(
+                        height: 300,
+                        child: Center(
+                          child: CupertinoActivityIndicator(
+                            radius: 20,
+                          ),
                         ),
                       )
                     : GridView.builder(
                         shrinkWrap: true,
                         gridDelegate:
-                            const SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 160,
+                            const SliverGridDelegateWithFixedCrossAxisCount(
                           childAspectRatio: 0.6,
-                          crossAxisSpacing: 20,
-                          mainAxisSpacing: 20,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                          crossAxisCount: 3,
                         ),
                         itemCount: movies.length,
                         physics: const ScrollPhysics(),
@@ -232,23 +209,15 @@ class MovieCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: NetworkImage("$imageW500Url${item.posterPath}"),
-                fit: BoxFit.cover,
-              ),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            height: 300,
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: NetworkImage("$imageW500Url${item.posterPath}"),
+          fit: BoxFit.cover,
         ),
-      ],
+        borderRadius: BorderRadius.circular(10),
+      ),
+      height: 200,
     );
   }
 }

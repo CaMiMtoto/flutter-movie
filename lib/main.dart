@@ -15,9 +15,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Movie',
       theme: ThemeData(
-        primarySwatch: Colors.red,
+        fontFamily: 'Mulish',
+        primarySwatch: Colors.green,
         textTheme: const TextTheme(
           bodyText1: TextStyle(color: Colors.white),
           bodyText2: TextStyle(color: Colors.white),
@@ -115,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
               });
             },
             icon: Icon(
-              Icons.file_download_outlined,
+              Icons.bookmark,
               color: pageIndex == 2
                   ? Theme.of(context).primaryColor
                   : Colors.white,
