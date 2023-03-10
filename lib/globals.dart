@@ -1,4 +1,6 @@
-const String apiKey = '76660cbeaac1623eaf027d415fe2ab08';
+import 'package:flutter_movie/api_key.dart';
+
+const String apiKey = API_KEY;
 
 const String baseUrl = 'https://api.themoviedb.org/3/';
 

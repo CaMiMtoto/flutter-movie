@@ -69,13 +69,19 @@ class Movie {
   DateTime getReleaseDate() {
     DateFormat dateFormat = DateFormat("yyyy-MM-dd");
 
-    DateTime dateTime = dateFormat
-        .parse(releaseDate ?? firstAirDate ?? DateTime.now().toString());
+    DateTime dateTime = dateFormat.parse(releaseDate!);
 
     return dateTime;
   }
 
-  String getName(){
-    return title??name??'';
+  String getName() {
+    return title ?? name ?? '';
+  }
+
+  String getYear() {
+    if(releaseDate == null) {
+      return '';
+    }
+    return releaseDate!.padLeft(4, ' ').substring(0, 4);
   }
 }

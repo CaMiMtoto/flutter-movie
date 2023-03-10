@@ -1,18 +1,25 @@
-# flutter_movie
+# Flutter Movie App
 
-A new Flutter project.
+A simple movie app built with Flutter and
+the [TMDb API](https://www.themoviedb.org/documentation/api).
 
-## Getting Started
+## Usage
 
-This project is a starting point for a Flutter application.
+1. Clone the repo
 
-A few resources to get you started if this is your first Flutter project:
+```sh
+git clone https://github.com/CaMiMtoto/flutter-movie.git
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+2. Install packages
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# flutter-movie
-# flutter-movie
+```sh
+flutter pub get
+```
+
+3. Create a file named `api_key.dart` in the `lib` folder and add your API key
+4. Add variable ``` const String API_KEY ="Your API KEY HERE" ```;
+
+
+
+

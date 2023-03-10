@@ -18,8 +18,10 @@ class Search extends StatefulWidget {
 }
 
 Future<List<Movie>> fetchMovies({required String query, int page = 1}) async {
-  final response = await http.get(Uri.parse(
-      '${baseUrl}search/movie?api_key=$apiKey&language=en-US&query=$query&page=$page&include_adult=true'));
+  var uri =
+      '${baseUrl}search/movie?api_key=$apiKey&language=en-US&query=$query&page=$page&include_adult=true';
+  print(uri);
+  final response = await http.get(Uri.parse(uri));
   return compute(parseMovies, response.body);
 }
 
@@ -146,8 +148,7 @@ class _SearchState extends State<Search> with SingleTickerProviderStateMixin {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(10),
                               child: CachedNetworkImage(
-                                imageUrl:
-                                    "$imageW500Url${movie.posterPath ?? movie.backdropPath}",
+                                imageUrl: "$imageW500Url${movie.posterPath}",
                                 fit: BoxFit.cover,
                                 alignment: Alignment.topCenter,
                                 progressIndicatorBuilder: (context, url,
@@ -186,17 +187,19 @@ class _SearchState extends State<Search> with SingleTickerProviderStateMixin {
                                   color: Colors.yellow,
                                   size: 16,
                                 ),
-                                Text(movie.voteAverage.toString(),
-                                    style:
-                                        TextStyle(color: Colors.grey.shade500)),
+                                Text(
+                                  movie.voteAverage.toStringAsFixed(0),
+                                  style: TextStyle(color: Colors.grey.shade500),
+                                ),
                                 const SizedBox(
                                   width: 32,
                                 ),
-                                Text(movie.getFormattedDate(),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 2,
-                                    style:
-                                        TextStyle(color: Colors.grey.shade500)),
+                                Text(
+                                  movie.getYear(),
+                                  style: TextStyle(
+                                    color: Colors.grey.shade500,
+                                  ),
+                                ),
                               ],
                             ),
                           ),

@@ -178,7 +178,7 @@ class _MovieDetailState extends State<MovieDetail>
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -196,7 +196,7 @@ class _MovieDetailState extends State<MovieDetail>
                             ],
                           ),
                           const SizedBox(height: 8.0),
-                          Text(movie?.name ?? movie?.title ?? "",
+                          SelectableText(movie?.name ?? movie?.title ?? "",
                               style: const TextStyle(
                                   fontSize: 28, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 8.0),
@@ -290,16 +290,20 @@ class _MovieDetailState extends State<MovieDetail>
                           const SizedBox(
                             height: 16,
                           ),
-                          Text(movie!.overview,
-                              style: TextStyle(color: Colors.grey.shade500)),
+                          SelectableText(
+                            movie!.overview,
+                            style: TextStyle(
+                              color: Colors.grey.shade500,
+                            ),
+                            textAlign: TextAlign.justify
+                          ),
                           const SizedBox(
                             height: 16,
                           ),
                           movie?.homepage == null
                               ? const SizedBox.shrink()
                               : Container(
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 4),
+                                  margin: const EdgeInsets.symmetric( vertical: 4),
                                   child: MaterialButton(
                                     onPressed: () async {
                                       try {
@@ -348,8 +352,7 @@ class _MovieDetailState extends State<MovieDetail>
                                   ),
                                 ),
                           Container(
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 4),
+                            margin: const EdgeInsets.symmetric( vertical: 4),
                             child: MaterialButton(
                               onPressed: () {},
                               color: Colors.grey.shade800,
