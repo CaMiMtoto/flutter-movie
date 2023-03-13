@@ -1,7 +1,9 @@
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_movie/screens/Discover.dart';
+import 'package:flutter_movie/screens/settings.dart';
 
+import 'colors.dart';
 import 'screens/Home.dart';
 
 void main() {
@@ -18,12 +20,44 @@ class MyApp extends StatelessWidget {
       title: 'Movie',
       theme: ThemeData(
         fontFamily: 'Mulish',
-        primarySwatch: Colors.green,
-        textTheme: const TextTheme(
-          bodyText1: TextStyle(color: Colors.white),
-          bodyText2: TextStyle(color: Colors.white),
+        scaffoldBackgroundColor: backgroundColor,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: backgroundColor,
+          elevation: 0,
+          centerTitle: true,
+          titleTextStyle: TextStyle(
+            color: primaryColor,
+            fontWeight: FontWeight.w900,
+          ),
         ),
-        backgroundColor: Colors.black,
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.white),
+          bodyMedium: TextStyle(color: Colors.white),
+        ),
+        primaryColor: primaryColor,
+        listTileTheme:  const ListTileThemeData(
+          selectedColor: primaryColor,
+          selectedTileColor: backgroundColor,
+          textColor: textColor,
+          iconColor: primaryColor,
+        ),
+        colorScheme: const ColorScheme.light(
+          primary: primaryColor,
+          secondary: secondaryColor,
+          onPrimary: Colors.white,
+          onSecondary: Colors.white,
+        ),
+        progressIndicatorTheme: const ProgressIndicatorThemeData(
+          color: accentColor,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: accentColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+          ),
+        ),
       ),
       home: const MyHomePage(title: 'Movies'),
     );
@@ -44,15 +78,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final pages = [
     const Home(),
-     Discover(),
+    Discover(),
     const Home(),
-    const Home(),
+    const Settings(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
       body: pages[pageIndex],
       bottomNavigationBar: buildMyNavBar(context),
       // This trailing comma makes auto-formatting nicer for build methods.
@@ -71,7 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
       margin: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
       padding: const EdgeInsets.all(0),
       decoration: BoxDecoration(
-        color: Colors.grey.shade900,
+        color: secondaryColor,
         borderRadius: BorderRadius.circular(30),
       ),
       child: Row(

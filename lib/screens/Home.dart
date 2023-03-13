@@ -12,6 +12,8 @@ import 'package:flutter_movie/screens/MovieDetail.dart';
 import 'package:flutter_movie/screens/Search.dart';
 import 'package:http/http.dart' as http;
 
+import '../colors.dart';
+
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
 
@@ -90,7 +92,7 @@ class _HomeState extends State<Home> {
                 child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade800,
+                    color:secondaryColor,
                     borderRadius: BorderRadius.circular(30),
                   ),
                   padding:
@@ -300,15 +302,14 @@ class _HomeState extends State<Home> {
                     width: 30,
                     height: 30,
                     decoration: BoxDecoration(
-                        color: Colors.black,
                         borderRadius: BorderRadius.circular(50)),
                     child: CircularProgressIndicator(
                       value: item.voteAverage / 10,
                       backgroundColor: item.voteAverage > 6
-                          ? Colors.green.shade900
+                          ? secondaryColor
                           : Colors.indigo.shade300,
                       color: item.voteAverage > 6
-                          ? Colors.green
+                          ? primaryColor
                           : Colors.indigo.shade600,
                     ),
                   ),

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_movie/models/Movie.dart';
 import 'package:flutter_movie/screens/Home.dart';
 import 'package:flutter_movie/screens/MovieDetail.dart';
+import 'package:flutter_movie/screens/Search.dart';
 
 import '../globals.dart';
 import '../models/Genre.dart';
@@ -81,9 +82,7 @@ class _DiscoverState extends State<Discover>
     ThemeData localTheme = Theme.of(context);
 
     return Scaffold(
-        backgroundColor: Colors.black,
         appBar: AppBar(
-          backgroundColor: Colors.black,
           centerTitle: true,
           title: Text(
             "DISCOVER",
@@ -93,7 +92,9 @@ class _DiscoverState extends State<Discover>
             ),
           ),
           actions: [
-            IconButton(onPressed: () {}, icon: const Icon(Icons.search))
+            IconButton(onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const Search()));
+            }, icon: const Icon(Icons.search))
           ],
           elevation: 0,
         ),

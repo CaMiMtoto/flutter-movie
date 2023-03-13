@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_movie/colors.dart';
 import 'package:flutter_movie/globals.dart';
 import 'package:flutter_movie/models/Movie.dart';
 import 'package:flutter_movie/screens/Home.dart';
@@ -290,20 +292,19 @@ class _MovieDetailState extends State<MovieDetail>
                           const SizedBox(
                             height: 16,
                           ),
-                          SelectableText(
-                            movie!.overview,
-                            style: TextStyle(
-                              color: Colors.grey.shade500,
-                            ),
-                            textAlign: TextAlign.justify
-                          ),
+                          SelectableText(movie!.overview,
+                              style: TextStyle(
+                                color: Colors.grey.shade500,
+                              ),
+                              textAlign: TextAlign.justify),
                           const SizedBox(
                             height: 16,
                           ),
                           movie?.homepage == null
                               ? const SizedBox.shrink()
                               : Container(
-                                  margin: const EdgeInsets.symmetric( vertical: 4),
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 4),
                                   child: MaterialButton(
                                     onPressed: () async {
                                       try {
@@ -352,15 +353,16 @@ class _MovieDetailState extends State<MovieDetail>
                                   ),
                                 ),
                           Container(
-                            margin: const EdgeInsets.symmetric( vertical: 4),
-                            child: MaterialButton(
+                            margin: const EdgeInsets.symmetric(vertical: 16),
+                            child: ElevatedButton(
                               onPressed: () {},
-                              color: Colors.grey.shade800,
-                              textColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                              style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
                               ),
-                              padding: const EdgeInsets.symmetric(vertical: 10),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: const [
@@ -369,7 +371,7 @@ class _MovieDetailState extends State<MovieDetail>
                                     size: 32,
                                   ),
                                   Text(
-                                    "Add to My List",
+                                    "Add To List",
                                     style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold),
@@ -451,11 +453,15 @@ class _MovieDetailState extends State<MovieDetail>
             height: 64,
             width: 64,
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(50),
-              child: Image.network(
-                "$imageW500Url${casts[index].profilePath}",
-                fit: BoxFit.fitHeight,
-                alignment: Alignment.center,
+              borderRadius: BorderRadius.circular(100),
+              child: CachedNetworkImage(
+                imageUrl: "$imageW500Url${casts[index].profilePath}",
+                fit: BoxFit.cover,
+                alignment: Alignment.topCenter,
+                errorWidget: (context, url, error) => const Icon(
+                  Icons.error,
+                  color: accentColor,
+                ),
               ),
             ),
           ),

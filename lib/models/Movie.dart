@@ -46,7 +46,7 @@ class Movie {
       overview: json['overview'],
       posterPath: json['poster_path'],
       backdropPath: json['backdrop_path'],
-      popularity: json['popularity'],
+      popularity: double.parse(json['popularity'].toString()),
       releaseDate: json['release_date'],
       voteAverage: double.parse(json['vote_average'].toString()),
       voteCount: json['vote_count'] as int,

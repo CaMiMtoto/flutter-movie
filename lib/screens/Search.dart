@@ -19,7 +19,7 @@ class Search extends StatefulWidget {
 
 Future<List<Movie>> fetchMovies({required String query, int page = 1}) async {
   var uri =
-      '${baseUrl}search/movie?api_key=$apiKey&language=en-US&query=$query&page=$page&include_adult=true';
+      '${baseUrl}search/movie?api_key=$apiKey&language=en-US&query=$query&page=$page&include_adult=false';
   print(uri);
   final response = await http.get(Uri.parse(uri));
   return compute(parseMovies, response.body);
@@ -34,6 +34,7 @@ class _SearchState extends State<Search> with SingleTickerProviderStateMixin {
 
   final debouncer =
       Debouncer<String>(const Duration(milliseconds: 500), initialValue: "");
+
 
   @override
   void initState() {
@@ -79,8 +80,10 @@ class _SearchState extends State<Search> with SingleTickerProviderStateMixin {
           onChanged: (value) {},
           controller: searchController,
           decoration: InputDecoration.collapsed(
-              hintText: 'Search Movie...',
-              hintStyle: TextStyle(color: Colors.grey.shade300)),
+            hintText: 'Search Movie...',
+            hintStyle: TextStyle(color: Colors.grey.shade300),
+          ),
+          autofocus: true,
           style: TextStyle(color: Colors.grey.shade300),
         ),
         actions: [
