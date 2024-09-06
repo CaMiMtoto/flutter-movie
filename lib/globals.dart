@@ -1,6 +1,6 @@
-import 'package:flutter_movie/api_key.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-const String apiKey = API_KEY;
+String apiKey = dotenv.env['API_KEY'] ?? '';
 
 const String baseUrl = 'https://api.themoviedb.org/3/';
 
